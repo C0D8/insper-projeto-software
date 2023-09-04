@@ -15,10 +15,7 @@ public class GameReturnDTO {
     private Integer attendance;
     private LocalDateTime gameDate;
     private String status;
-
-    private TeamReturnDTO home;
-    private TeamReturnDTO away;
-
-
+    private String home;
+    private String away;
 
 }
