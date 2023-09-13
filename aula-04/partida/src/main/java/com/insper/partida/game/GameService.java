@@ -87,9 +87,13 @@ public class GameService {
     public Integer getScoreTeam(String identifier) {
         Team team = teamService.getTeam(identifier);
 
+<<<<<<< HEAD
 //        return gameRepository.sumScoreTeamHome(team);
         return 0;
 
+=======
+        return 0;
+>>>>>>> 1a4b4e0f12da106c0f47ae1a30c67f27995c4e35
     }
 
     public GameReturnDTO getGame(String identifier) {

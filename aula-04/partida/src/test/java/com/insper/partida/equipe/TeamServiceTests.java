@@ -52,7 +52,11 @@ public class TeamServiceTests {
 
     private static Team getTeam() {
         Team team = new Team();
+<<<<<<< HEAD
 //        team.setId(1);
+=======
+        team.setId("1");
+>>>>>>> 1a4b4e0f12da106c0f47ae1a30c67f27995c4e35
         team.setIdentifier("time-1");
         team.setName("Time 1");
         return team;
