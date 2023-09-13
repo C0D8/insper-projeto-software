@@ -1,6 +1,5 @@
 package com.insper.partida.tabela;
 
-import com.insper.partida.equipe.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,12 +11,12 @@ import java.util.List;
 @RequestMapping("/tabela")
 public class TabelaController {
 
-
     @Autowired
     private TabelaService tabelaService;
-    @GetMapping
-    public List<TimeDTO> getTabela(){
 
+    @GetMapping
+    public List<TimeDTO> getTabela() {
         return tabelaService.getTabela();
     }
+
 }

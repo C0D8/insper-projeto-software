@@ -132,6 +132,7 @@ public class GameService {
             game.setStadium(teams[team1]);
             game.setAttendance(new Random().nextInt(4) * 1000);
 
+            //gameRepository.save(game);
             games.add(game);
 
         }
