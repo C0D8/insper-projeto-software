@@ -1,5 +1,6 @@
 package com.insper.partida.tabela;
 
+import com.insper.partida.equipe.Team;
 import com.insper.partida.equipe.TeamService;
 import com.insper.partida.equipe.dto.TeamReturnDTO;
 import com.insper.partida.game.Game;
@@ -17,39 +18,52 @@ public class TabelaService {
     @Autowired
     private TeamService teamService;
 
+
+
     @Autowired
-    private GameService gameService;
+    private TabelaRepository tabelaRepository;
 
-    public List<TimeDTO> getTabela() {
+    public List<Tabela> getTabelas(){
+        return tabelaRepository.findAll();
+    }
 
-        List<TeamReturnDTO> times = teamService.listTeams();
-        List<TimeDTO> response = new ArrayList<>();
 
-        for (TeamReturnDTO time : times) {
+    public Tabela getTabela(String time){
 
-            List<Game> games = gameService.getGameByTeam(time.getIdentifier());
 
-            TimeDTO timeDTO = new TimeDTO();
-            timeDTO.setNome(time.getName());
+        Team time1 = teamService.getTeam(time);
 
-            for (Game game : games) {
-                timeDTO.setPontos(timeDTO.getPontos() + verificaResultado(time, game));
-                timeDTO.setVitorias(timeDTO.getVitorias() + (verificaVitorias(time, game) ? 1 : 0));
-                timeDTO.setDerrotas(timeDTO.getDerrotas() + (verificaDerrotas(time, game) ? 1 : 0));
-                timeDTO.setEmpates(timeDTO.getEmpates() + (verificaEmpates(time, game) ? 1 : 0));
-                timeDTO.setGolsPro(timeDTO.getGolsPro() + verificaGolsPro(time, game));
-                timeDTO.setGolsContra(timeDTO.getGolsContra()  + verificaGolsContra(time, game));
-                timeDTO.setJogos(timeDTO.getJogos() + 1);
-            }
-            response.add(timeDTO);
+//        TeamReturnDTO time_1 = TeamReturnDTO.covert(time1);
 
-        }
-        response.sort(Comparator.comparingInt(TimeDTO::getPontos).reversed());
-        return response;
+        Tabela t = tabelaRepository.findByNome(time1.getIdentifier());
+
+        return t;
+
+    }
+    public void saveTabela1 (Tabela tab){
+        tabelaRepository.save(tab);
+    }
+    public void saveTabela(Game game, Tabela tabela, String time ) {
+
+
+        Team time1 = teamService.getTeam(time);
+
+
+        TeamReturnDTO time_1 = TeamReturnDTO.covert(time1);
+
+
+        tabela.setPontos(tabela.getPontos() + verificaResultado(time_1, game));
+        tabela.setVitorias(tabela.getVitorias() + (verificaVitorias(time_1, game) ? 1 : 0));
+        tabela.setDerrotas(tabela.getDerrotas() + (verificaDerrotas(time_1, game) ? 1 : 0));
+        tabela.setEmpates(tabela.getEmpates() + (verificaEmpates(time_1, game) ? 1 : 0));
+        tabela.setGolsPro(tabela.getGolsPro() + verificaGolsPro(time_1, game));
+        tabela.setGolsContra(tabela.getGolsContra()  + verificaGolsContra(time_1, game));
+        tabela.setJogos(tabela.getJogos() + 1);
+        saveTabela1(tabela);
 
     }
 
-    private Integer verificaResultado(TeamReturnDTO time, Game game) {
+    public Integer verificaResultado(TeamReturnDTO time, Game game) {
         if (game.getScoreHome() == game.getScoreAway()) {
             return 1;
         }

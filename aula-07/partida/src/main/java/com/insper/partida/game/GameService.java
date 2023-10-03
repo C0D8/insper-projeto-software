@@ -7,6 +7,8 @@ import com.insper.partida.equipe.dto.TeamReturnDTO;
 import com.insper.partida.game.dto.EditGameDTO;
 import com.insper.partida.game.dto.GameReturnDTO;
 import com.insper.partida.game.dto.SaveGameDTO;
+import com.insper.partida.tabela.Tabela;
+import com.insper.partida.tabela.TabelaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,9 @@ public class GameService {
 
     @Autowired
     private TeamService teamService;
+
+    @Autowired
+    private TabelaService   tabelaService;
 
     public Page<GameReturnDTO> listGames(String home, String away, Integer attendance, Pageable pageable) {
         if (home != null && away != null) {
@@ -69,11 +74,22 @@ public class GameService {
     }
 
     public GameReturnDTO editGame(String identifier, EditGameDTO editGameDTO) {
+
         Game gameBD = gameRepository.findByIdentifier(identifier);
 
         gameBD.setScoreAway(editGameDTO.getScoreAway());
         gameBD.setScoreHome(editGameDTO.getScoreHome());
         gameBD.setAttendance(editGameDTO.getAttendance());
+
+        String time = gameBD.getHome();
+
+        Tabela tabela = tabelaService.getTabela(gameBD.getHome());
+        Tabela tabela2 = tabelaService.getTabela(gameBD.getAway());
+
+
+        tabelaService.saveTabela(gameBD, tabela, gameBD.getHome());
+        tabelaService.saveTabela(gameBD, tabela2, gameBD.getAway());
+
         gameBD.setStatus("FINISHED");
 
         Game game = gameRepository.save(gameBD);
@@ -107,6 +123,11 @@ public class GameService {
             saveTeamDTO.setName(team);
             saveTeamDTO.setStadium(team);
             saveTeamDTO.setIdentifier(team);
+            Tabela tab = new Tabela();
+
+            tab.setNome(team);
+            tabelaService.saveTabela1(tab);
+
 
             Team teamDB = teamService.getTeam(team);
             if (teamDB == null) {
@@ -114,7 +135,6 @@ public class GameService {
             }
         }
 
-        List<Game> games = new ArrayList<>();
 
         for (int i = 0; i < 1000; i++) {
 
@@ -127,17 +147,22 @@ public class GameService {
             Game game = new Game();
             game.setHome(teams[team1]);
             game.setAway(teams[team2]);
-            game.setScoreHome(new Random().nextInt(4));
-            game.setScoreAway(new Random().nextInt(4));
             game.setStadium(teams[team1]);
-            game.setAttendance(new Random().nextInt(4) * 1000);
+            game.setIdentifier(UUID.randomUUID().toString());
 
-            //gameRepository.save(game);
-            games.add(game);
+            gameRepository.save(game);
+
+            EditGameDTO game_c= new EditGameDTO();
+
+            game_c.setScoreAway(new Random().nextInt(4));
+            game_c.setScoreHome(new Random().nextInt(4));
+            game_c.setAttendance(new Random().nextInt(4) * 1000);
+
+
+            editGame(game.getIdentifier(), game_c);
 
         }
 
-        gameRepository.saveAll(games);
 
 
     }
