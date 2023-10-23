@@ -3,6 +3,7 @@ package com.insper.partida.equipe;
 import com.insper.partida.equipe.dto.SaveTeamDTO;
 import com.insper.partida.equipe.dto.TeamReturnDTO;
 import com.insper.partida.equipe.exception.TeamAlreadyExistsException;
+import com.insper.partida.equipe.exception.TeamNotExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,12 +37,16 @@ public class  TeamService {
 
     public void deleteTeam(String identifier) {
 
-        Team team = teamRepository.findByIdentifier(identifier);
-        if (team != null) {
+        // verificar se o time existe antes de deletar
+
+        if(teamRepository.existsByIdentifier(identifier)){
+            Team team = teamRepository.findByIdentifier(identifier);
             teamRepository.delete(team);
         }
-
-        // verificar se o time existe
+        else{
+            throw new TeamNotExistsException();
+        }
+    
 
     }
 

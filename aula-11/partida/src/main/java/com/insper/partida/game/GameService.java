@@ -3,10 +3,12 @@ package com.insper.partida.game;
 import com.insper.partida.equipe.Team;
 import com.insper.partida.equipe.TeamService;
 import com.insper.partida.equipe.dto.SaveTeamDTO;
-import com.insper.partida.equipe.dto.TeamReturnDTO;
+import com.insper.partida.game.exception.GameNotExistsException;
+import com.insper.partida.game.exception.SomeTeamNotExists;
 import com.insper.partida.game.dto.EditGameDTO;
 import com.insper.partida.game.dto.GameReturnDTO;
 import com.insper.partida.game.dto.SaveGameDTO;
+import com.insper.partida.game.exception.TeamEqualsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,10 +52,15 @@ public class GameService {
         Team teamV = teamService.getTeam(saveGameDTO.getAway());
 
         if (teamM == null || teamV == null) {
-            return null; // enviar a mensagem de erro correta
+
+            throw new SomeTeamNotExists() ; // enviar a mensagem de erro correta
         }
 
         // validar se o time mandante é diferente do visitante
+        if (teamM.getIdentifier().equals(teamV.getIdentifier())) {
+            throw new TeamEqualsException();
+            // enviar a mensagem de erro correta
+        }
 
         Game game = new Game();
         game.setIdentifier(UUID.randomUUID().toString());
@@ -71,25 +78,35 @@ public class GameService {
     }
 
     public GameReturnDTO editGame(String identifier, EditGameDTO editGameDTO) {
-        Game gameBD = gameRepository.findByIdentifier(identifier);
 
-        // verificasr se o jogo existe
+        if(gameRepository.existsByIdentifier(identifier)){
+            Game gameBD = gameRepository.findByIdentifier(identifier);
+            gameBD.setScoreAway(editGameDTO.getScoreAway());
+            gameBD.setScoreHome(editGameDTO.getScoreHome());
+            gameBD.setAttendance(editGameDTO.getAttendance());
+            gameBD.setStatus("FINISHED");
 
-        gameBD.setScoreAway(editGameDTO.getScoreAway());
-        gameBD.setScoreHome(editGameDTO.getScoreHome());
-        gameBD.setAttendance(editGameDTO.getAttendance());
-        gameBD.setStatus("FINISHED");
+            Game game = gameRepository.save(gameBD);
+            return GameReturnDTO.covert(game);
+        }
+        else{
+            throw new GameNotExistsException();
+        }
 
-        Game game = gameRepository.save(gameBD);
-        return GameReturnDTO.covert(game);
     }
 
     public void deleteGame(String identifier) {
-        Game gameBD = gameRepository.findByIdentifier(identifier);
-        if (gameBD != null) {
+
+        if(gameRepository.existsByIdentifier(identifier)){
+            Game gameBD = gameRepository.findByIdentifier(identifier);
             gameRepository.delete(gameBD);
         }
+        else{
+            throw new GameNotExistsException();
+        }
+
         //verificar se o jogo existe
+
     }
 
     public Integer getScoreTeam(String identifier) {
@@ -101,7 +118,16 @@ public class GameService {
     public GameReturnDTO getGame(String identifier) {
 
         // verificar se o gaame existe
-        return GameReturnDTO.covert(gameRepository.findByIdentifier(identifier));
+
+        if(gameRepository.existsByIdentifier(identifier)){
+
+            return GameReturnDTO.covert(gameRepository.findByIdentifier(identifier));
+
+        }
+        else{
+            throw new GameNotExistsException();
+        }
+
     }
 
     public void generateData() {

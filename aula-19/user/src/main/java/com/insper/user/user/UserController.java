@@ -15,7 +15,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+
     @GetMapping
     public List<ReturnUserDTO> listUsers() {
         return userService.listUsers();
@@ -26,6 +26,7 @@ public class UserController {
         return "Oi!";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping
     public ReturnUserDTO saveUser(@RequestBody SaveUserDTO saveUser) {
         return userService.saveUser(saveUser);

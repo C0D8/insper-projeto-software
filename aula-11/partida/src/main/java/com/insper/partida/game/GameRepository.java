@@ -17,6 +17,7 @@ public interface GameRepository extends MongoRepository<Game, String> {
     Page<Game> findByAttendanceGreaterThan(Integer attendance, Pageable pageable);
 
     List<Game> findByHomeOrAway(String identifier, String identifier1);
+    boolean existsByIdentifier(String identifier);
 
 
     //@Query("select sum(g.scoreHome) from Game g where g.home = ?1")

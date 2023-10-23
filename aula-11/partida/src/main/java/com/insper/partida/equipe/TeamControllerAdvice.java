@@ -2,6 +2,7 @@ package com.insper.partida.equipe;
 
 import com.insper.partida.common.ErrorDTO;
 import com.insper.partida.equipe.exception.TeamAlreadyExistsException;
+import com.insper.partida.equipe.exception.TeamNotExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,6 +18,18 @@ public class TeamControllerAdvice {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO teamAlreadyExistsException(TeamAlreadyExistsException ex) {
+        ErrorDTO error = new ErrorDTO();
+        error.setMessage(ex.getMessage());
+        error.setCode(400);
+        error.setTime(LocalDateTime.now());
+        return error;
+    }
+
+
+    @ExceptionHandler(TeamNotExistsException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO TeamNotExistsException(TeamNotExistsException ex) {
         ErrorDTO error = new ErrorDTO();
         error.setMessage(ex.getMessage());
         error.setCode(400);
